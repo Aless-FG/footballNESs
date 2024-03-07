@@ -22,7 +22,19 @@
 #include "vrambuf.h"
 //#link "vrambuf.c"
 #define NES_MIRRORING 0
-#define NUM_ACTORS 1
+#define NUM_ACTORS 2
+
+#define TILE 0xd8
+#define ATTR 0x01
+
+// define a 2x2 metasprite
+const unsigned char metasprite[]={
+        0,      0,      TILE+0,   ATTR, 
+        0,      8,      TILE+1,   ATTR, 
+        8,      0,      TILE+2,   ATTR, 
+        8,      8,      TILE+3,   ATTR, 
+        128};
+
 /*{pal:"nes",layout:"nes"}*/
 const char PALETTE[32] = { 
   0x19,			// screen color
@@ -146,15 +158,21 @@ void main(void)
 {
   char i;
   char oam_id;
+  //i = 0;
   
-  i = 0;
   draw_pitch();
   // enable rendering
-  actor_x[i] = 50;
-  actor_y[i] = 50;
+  actor_x[0] = 50;
+  actor_y[0] = 50;
   
-  actor_dx[i] = 0;
-  actor_dy[i] = 2;
+  actor_dx[0] = 0;
+  actor_dy[0] = 1;
+  
+  actor_x[1] = 90;
+  actor_y[1] = 70;
+  
+  actor_dx[1] = 1;
+  actor_dy[1] = 1;
   
   //scroll_demo();
   
@@ -163,10 +181,18 @@ void main(void)
   // infinite loop
   while(1) {
     oam_id = 0;
-    oam_id = oam_spr(actor_x[i], actor_y[i], 0xAF, 0x01, oam_id);
+    
+    oam_id = oam_spr(actor_x[i], actor_y[i], 0xAF, 0x00, oam_id);
     
     actor_x[i] += actor_dx[i];
     actor_y[i] += actor_dy[i];
+    oam_id = oam_meta_spr(actor_x[i+1], actor_y[i+1], oam_id, metasprite);
+    actor_x[i+1] += actor_dx[i+1];
+    actor_y[i+1] += actor_dy[i+1];
+    
+    
+    
+    
     
     
     
