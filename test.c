@@ -22,6 +22,7 @@
 #include "vrambuf.h"
 //#link "vrambuf.c"
 #define NES_MIRRORING 0
+#define NUM_ACTORS 1
 /*{pal:"nes",layout:"nes"}*/
 const char PALETTE[32] = { 
   0x19,			// screen color
@@ -37,12 +38,19 @@ const char PALETTE[32] = {
   0x0d,0x27,0x2a	// sprite palette 3
 };
 
+byte actor_x[NUM_ACTORS];
+byte actor_y[NUM_ACTORS];
+sbyte actor_dx[NUM_ACTORS];
+sbyte actor_dy[NUM_ACTORS];
+
+
 // setup PPU and tables
 void setup_graphics() {
   // clear sprites
-  
+  oam_clear();
   // set palette colors
   pal_all(PALETTE);
+  ppu_on_all();
 }
 
 void put_str(unsigned int adr, const char *str) {
@@ -136,12 +144,33 @@ void draw_pitch() {
 
 void main(void)
 {
+  char i;
+  char oam_id;
   
+  i = 0;
   draw_pitch();
   // enable rendering
-  ppu_on_all();
-  scroll_demo();
+  actor_x[i] = 50;
+  actor_y[i] = 50;
+  
+  actor_dx[i] = 0;
+  actor_dy[i] = 2;
+  
+  //scroll_demo();
+  
+  
+  
   // infinite loop
   while(1) {
+    oam_id = 0;
+    oam_id = oam_spr(actor_x[i], actor_y[i], 0xAF, 0x01, oam_id);
+    
+    actor_x[i] += actor_dx[i];
+    actor_y[i] += actor_dy[i];
+    
+    
+    
+    if (oam_id!=0) oam_hide_rest(oam_id);
+    ppu_wait_frame();
   }
 }
